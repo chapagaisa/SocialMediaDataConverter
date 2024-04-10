@@ -1,18 +1,5 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import json
 import os
-import pandas as pd
-
-
-# In[2]:
-
-
-import json
 import pandas as pd
 
 def extract_tweet_data(js_file, profile_id):
@@ -82,10 +69,6 @@ def extract_like_data(js_file, profile_id):
         like_list.append(like_data)
 
     return pd.DataFrame(like_list)
-
-
-# In[3]:
-
 
 # Define the root folder path
 root_folder_path = r'C:\Users\Ankit Chapagain\OneDrive - USU\CMIPS\Social Media Data\UNZIP'

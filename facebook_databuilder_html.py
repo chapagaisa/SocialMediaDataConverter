@@ -1,17 +1,7 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import os
 import json
 import pandas as pd
 from bs4 import BeautifulSoup
-
-
-# In[2]:
-
 
 def parse_your_posts_html(html_file_path, profile_id):
     with open(html_file_path, 'r', encoding='utf-8') as file:
@@ -84,12 +74,6 @@ def extract_author(comment_info):
         parts = [comment_info, '']  
     return parts[0].strip()
 
-
-
-
-# In[3]:
-
-
 # Define the root folder path
 root_folder_path = r'C:\Users\Ankit Chapagain\OneDrive - USU\CMIPS\Social Media Data\UNZIP'
 
@@ -154,33 +138,9 @@ for folder_name in os.listdir(root_folder_path):
         else:
             continue  # Go to the next item in the outer loop
 
-
-
-
 post_data.to_csv('facebook_posts_html_data.csv',index=False)
 comment_data.to_csv('facebook_comments_html_data.csv',index=False)
 
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
 
 
 

@@ -1,17 +1,6 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import os
 import json
 import pandas as pd
-import re
-
-
-# In[2]:
-
 
 def parse_your_posts_1_to_dataframe(json_file, profile_id):
     # Load JSON data
@@ -100,10 +89,6 @@ def parse_comments_json(json_file, profile_id):
 
     return pd.DataFrame(comments_data)
 
-
-
-
-# In[3]:
 
 
 # Define the root folder path
