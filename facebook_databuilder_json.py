@@ -113,7 +113,7 @@ def extract_profile_id(folder_name):
 # Loop through folders
 for folder_name in os.listdir(root_folder_path):
     folder_path = os.path.join(root_folder_path, folder_name)
-    if os.path.isdir(folder_path) and any(folder_name.endswith(suffix) for suffix in ['Facebook', 'Facebook1', 'Facebook2','Facebook3']):
+    if os.path.isdir(folder_path) and any(folder_name.endswith(suffix) for suffix in ['Facebook', 'Facebook1', 'Facebook2','Facebook3','Facebook-1','Facebook-2']):
         # Extract and store the profile ID
         profile_id = extract_profile_id(folder_name)
         if profile_id:
