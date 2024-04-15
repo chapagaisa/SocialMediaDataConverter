@@ -3,59 +3,69 @@ import json
 import pandas as pd
 from bs4 import BeautifulSoup
 
+
 ##JSON FUNCTIONS
 def parse_your_posts_1_to_dataframe(json_file, profile_id):
     with open(json_file, 'r') as file:
         data = json.load(file)
 
-    # Initialize lists to store extracted data
-    timestamp_list = []
-    creation_timestamp_list = []
-    title_list = []
-    description_list = []
-    post_list = []
-
-    # Iterate over each entry in the JSON data
+    posts_data = []
     for entry in data:
-        # Extract post from 'data'
+        timestamp = entry.get('timestamp')
+        
+        post = None
+        update_timestamp = None
+        # Extract post and update_timestamp from 'data'
         if 'data' in entry and entry['data']:
-            post = entry.get('data', [{}])[0].get('post')
-            post_list.append(post)
-
-     
+            for item in entry['data']:
+                if 'post' in item:
+                    post = item['post']
+                if 'update_timestamp' in item:
+                    update_timestamp = item['update_timestamp']
+        
+        # Initialize variables
+        creation_timestamp = None
+        media_title = None
+        media_description = None
+        title = None
+        
+        if not title:
+            title = entry.get('title')
+        
         # Extract attachments
         attachments = entry.get('attachments', [])
-        for attachment in attachments:
-            attachment_data = attachment.get('data', [])
-            for item in attachment_data:
-                # Extract attributes from 'media'
-                media = item.get('media', {})
-                creation_timestamp_list.append(media.get('creation_timestamp'))
-                title_list.append(media.get('title'))
-                description_list.append(media.get('description'))
-                # Append timestamp (assuming it's the same for all attachments in an entry)
-                timestamp_list.append(entry['timestamp'])
+        if attachments:
+            for attachment in attachments:
+                attachment_data = attachment.get('data', [])
+                for item in attachment_data:
+                    media = item.get('media', {})
+                    media_creation_timestamp = media.get('creation_timestamp')
+                    media_title = media.get('title')
+                    media_description = media.get('description')
+                    
+                    df = {
+                        'participant_id': profile_id,
+                        'timestamp': timestamp,
+                        'media_creation_timestamp': media_creation_timestamp,
+                        'media_title': media_title,
+                        'media_description': media_description
+                    }
 
-    # Fill missing values with None
-    max_length = max(len(timestamp_list), len(creation_timestamp_list),
-                     len(title_list), len(description_list), len(post_list))
-    timestamp_list.extend([None] * (max_length - len(timestamp_list)))
-    creation_timestamp_list.extend([None] * (max_length - len(creation_timestamp_list)))
-    title_list.extend([None] * (max_length - len(title_list)))
-    description_list.extend([None] * (max_length - len(description_list)))
-    post_list.extend([None] * (max_length - len(post_list)))
+                    posts_data.append(df)
+                    
+        df = {
+            'participant_id': profile_id,
+            'timestamp': timestamp,
+            'update_timestamp': update_timestamp,
+            'post': post,
+            'title': title
+        }
 
-    # Create DataFrame
-    df = pd.DataFrame({
-        'participant_id': profile_id,
-        'timestamp': timestamp_list,
-        'creation_timestamp': creation_timestamp_list,
-        'title': title_list,
-        'description': description_list,
-        'post': post_list
-    })
+        posts_data.append(df)
+            
 
-    return df
+    return pd.DataFrame(posts_data)
+
 
 
 def parse_comments_json(json_file, profile_id):
@@ -90,7 +100,6 @@ def parse_comments_json(json_file, profile_id):
     return pd.DataFrame(comments_data)
 
 
-
 def parse_likes_and_reactions_json(json_file, profile_id):
     with open(json_file, 'r') as file:
         data = json.load(file)
@@ -102,7 +111,11 @@ def parse_likes_and_reactions_json(json_file, profile_id):
             if isinstance(item, dict):
                 reactions_data.extend(process_dict(item, profile_id))
     elif isinstance(data, dict):  # Handle case when root is a dictionary
-        reactions_data.extend(process_dict(data, profile_id))
+        reactions_v2_data = data.get('reactions_v2')
+        if reactions_v2_data:  # Check if reactions_v2 key exists
+            for item in reactions_v2_data:
+                if isinstance(item, dict):
+                    reactions_data.extend(process_dict(item, profile_id))
 
     return pd.DataFrame(reactions_data)
 
@@ -129,8 +142,8 @@ def process_dict(data, profile_id):
 
     return reactions_data
 
-##HTML Functions
 
+# HTML Functions
 def parse_your_posts_html(html_file_path, profile_id):
     with open(html_file_path, 'r', encoding='utf-8') as file:
         html_content = file.read()
@@ -246,7 +259,7 @@ root_folder_path = r'C:\Users\Ankit Chapagain\OneDrive - USU\CMIPS\Social Media 
 profile_ids = []
 
 # Initialize an empty DataFrame to store the html content and related information
-post_data_json = pd.DataFrame(columns=['participant_id', 'timestamp',  'creation_timestamp', 'title', 'description', 'post'])
+post_data_json = pd.DataFrame(columns=['participant_id', 'timestamp',  'media_creation_timestamp', 'media_title', 'media_description', 'update_timestamp' 'post', 'title'])
 comment_data_json = pd.DataFrame(columns=['participant_id', 'timestamp', 'title', 'comment_timestamp', 'comment_content', 'comment_author'])
 reaction_data_json = pd.DataFrame(columns=['participant_id', 'timestamp', 'title', 'reaction','actor']) #####
 
